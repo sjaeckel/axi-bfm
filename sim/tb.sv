@@ -26,7 +26,9 @@ module tb;
     Axi4Lite_M.WriteTransaction(32'h100, 3'b0, 32'h12345678, 4'b1011, resp);
     Axi4Lite_M.WriteTransaction(32'h12345678, 3'b0, 32'habcd, 4'b1111, resp);
     Axi4Lite_M.ReadTransaction(32'h100, 3'b0, data, resp);
-    Axi4Stream_M.SendRandom(200);
+    Axi4Stream_S.Receive;
+    Axi4Stream_M.SendRandomPacket(200);
+    Axi4Stream_M.SendRandomPacket(100);
   end
 
   AXI4 #(.N(8)) axi4(.ACLK(Clk), .ARESETn(!Rst));
