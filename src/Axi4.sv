@@ -4,123 +4,192 @@ module Axi4Master #(
 )(
   AXI4 intf
   );
+typedef struct packed
+{
+  bit [I-1:0] id;
+  bit [31:0] addr;
+  bit [3:0] region;
+  bit [7:0] len;
+  bit [2:0] size;
+  bit [1:0] burst;
+  bit lock;
+  bit [3:0] cache;
+  bit [2:0] prot;
+  bit [3:0] qos;
+} ABeat;
+typedef struct packed
+{
+  bit [I-1:0]  id;
+  bit [1:0]    resp;  
+} BBeat;
+typedef struct packed
+{
+  bit [I-1:0]    id;
+  bit [8*N-1:0]  data;
+  bit [1:0]      resp;
+  bit            last;
+} RBeat;
+typedef struct packed
+{
+  bit [8*N-1:0] data;
+  bit [N-1:0]   strb;
+  bit           last;
+} WBeat;
+
   int AWDelay;
   int WDelay;
   int BDelay;
   int ARDelay;
   int RDelay;
   
+  ABeat AR_Q[$];
+  RBeat R_Q[$];
+  ABeat AW_Q[$];
+  WBeat W_Q[$];
+  BBeat B_Q[$];
+  
   task ARTransfer(
     input int     delay,
-    input [I-1:0] id,
-    input [31:0]  addr,
-    input [3:0]   region,
-    input [7:0]   len,
-    input [2:0]   size,
-    input [1:0]   burst,
-    input         lock,
-    input [3:0]   cache,
-    input [2:0]   prot,
-    input [3:0]   qos
+    input ABeat   ab
   );
     for(int i=0; i<delay; i++) @(posedge intf.ACLK);
     intf.ARVALID <= 1'b1;
-    intf.ARID <= id;
-    intf.ARADDR <= addr;
-    intf.ARREGION <= region;
-    intf.ARLEN <= len;
-    intf.ARSIZE <= size;
-    intf.ARBURST <= burst;
-    intf.ARLOCK <= lock;
-    intf.ARCACHE <= cache;
-    intf.ARPROT <= prot;
-    intf.ARQOS <= qos;
+    intf.ARID <= ab.id;
+    intf.ARADDR <= ab.addr;
+    intf.ARREGION <= ab.region;
+    intf.ARLEN <= ab.len;
+    intf.ARSIZE <= ab.size;
+    intf.ARBURST <= ab.burst;
+    intf.ARLOCK <= ab.lock;
+    intf.ARCACHE <= ab.cache;
+    intf.ARPROT <= ab.prot;
+    intf.ARQOS <= ab.qos;
     @(posedge intf.ACLK);
     while (!intf.ARREADY) @(posedge intf.ACLK);
     intf.ARVALID <= 1'b0;
   endtask
   
   task RTransfer(
-    input int         delay,
-    output [I-1:0]    id,
-    output [8*N-1:0]  data,
-    output [1:0]      resp,
-    output            last
+    input int     delay,
+    output RBeat  rb
   );
     for(int i=0; i<delay; i++) @(posedge intf.ACLK);
     intf.RREADY <= 1'b1;
     while(!intf.RVALID) @(posedge intf.ACLK);
-    id = intf.RID;
-    data = intf.RDATA;
-    resp = intf.RRESP;
-    last = intf.RLAST;
+    rb.id = intf.RID;
+    rb.data = intf.RDATA;
+    rb.resp = intf.RRESP;
+    rb.last = intf.RLAST;
     intf.RREADY <= 1'b0;
   endtask
 
   task AWTransfer(
-    input int     delay,
-    input [I-1:0] id,
-    input [31:0]  addr,
-    input [3:0]   region,
-    input [7:0]   len,
-    input [2:0]   size,
-    input [1:0]   burst,
-    input         lock,
-    input [3:0]   cache,
-    input [2:0]   prot,
-    input [3:0]   qos
+    input int   delay,
+    input ABeat ab
   );
     for(int i=0; i<delay; i++) @(posedge intf.ACLK);
     intf.AWVALID <= 1'b1;
-    intf.AWID <= id;
-    intf.AWADDR <= addr;
-    intf.AWREGION <= region;
-    intf.AWLEN <= len;
-    intf.AWSIZE <= size;
-    intf.AWBURST <= burst;
-    intf.AWLOCK <= lock;
-    intf.AWCACHE <= cache;
-    intf.AWPROT <= prot;
-    intf.AWQOS <= qos;
+    intf.AWID <= ab.id;
+    intf.AWADDR <= ab.addr;
+    intf.AWREGION <= ab.region;
+    intf.AWLEN <= ab.len;
+    intf.AWSIZE <= ab.size;
+    intf.AWBURST <= ab.burst;
+    intf.AWLOCK <= ab.lock;
+    intf.AWCACHE <= ab.cache;
+    intf.AWPROT <= ab.prot;
+    intf.AWQOS <= ab.qos;
     @(posedge intf.ACLK);
     while (!intf.AWREADY) @(posedge intf.ACLK);
     intf.AWVALID <= 1'b0;
   endtask
   
   task WTransfer(
-    input int       delay,
-    input [8*N-1:0] data,
-    input [N-1:0]   strb,
-    input           last
+    input int   delay,
+    input WBeat wb
   );
     for(int i=0; i<delay; i++) @(posedge intf.ACLK);
     intf.WVALID <= 1'b1;
-    intf.WDATA <= data;
-    intf.WSTRB <= strb;
-    intf.WLAST <= last;
+    intf.WDATA <= wb.data;
+    intf.WSTRB <= wb.strb;
+    intf.WLAST <= wb.last;
     @(posedge intf.ACLK);
     while (!intf.WREADY) @(posedge intf.ACLK);
     intf.WVALID <= 1'b0;
   endtask
   
   task BTransfer(
-    input int       delay,
-    output [I-1:0]  id,
-    output [1:0]    resp
+    input int    delay,
+    output BBeat bb
   );
     for(int i=0; i<delay; i++) @(posedge intf.ACLK);
     intf.BREADY <= 1'b1;
     while(!intf.BVALID) @(posedge intf.ACLK);
-    id = intf.BID;
-    resp = intf.BRESP;
+    bb.id = intf.BID;
+    bb.resp = intf.BRESP;
     intf.BREADY <= 1'b0;
+  endtask
+  
+  task ARLoop;
+    ABeat b;
+    forever
+    begin
+      b = AR_Q.pop_back();
+      ARTransfer(ARDelay, b);
+    end
+  endtask
+  
+  task RLoop;
+    RBeat b;
+    forever
+    begin
+      RTransfer(RDelay, b);
+      R_Q.push_back(b);
+    end
+  endtask
+
+  task AWLoop;
+    ABeat b;
+    forever
+    begin
+      b = AW_Q.pop_back();
+      AWTransfer(AWDelay, b);
+    end
+  endtask
+  
+  task WLoop;
+    WBeat b;
+    forever
+    begin
+      b = W_Q.pop_back();
+      WTransfer(WDelay, b);
+    end
+  endtask
+  
+  task BLoop;
+    BBeat b;
+    forever
+    begin
+      BTransfer(BDelay, b);
+      B_Q.push_back(b);
+    end
+  endtask
+  
+  task Run;
+    fork
+      ARLoop;
+      RLoop;
+      AWLoop;
+      WLoop;
+      BLoop;
+    join
   endtask
   
   task RBurst(
     input [I-1:0] id,
     input         len,
     inout byte    data[],
-    inout bit [2:0] resp[],
+    inout bit [2:0] resp[]
   );
     bit [I-1:0] id_t;
     bit [255:0][N-1:0][7:0] data_t;
@@ -129,7 +198,7 @@ module Axi4Master #(
     int j=0;
     for (int i=0; i<256; i++)
     begin
-      RTransfer(0, id_t, data_t[j], resp_t, last_t);
+//      RTransfer(0, id_t, data_t[j], resp_t, last_t);
       if (id_t == id)
       begin
         j++;
@@ -155,7 +224,7 @@ module Axi4Master #(
         strb_t[j] = strb[N*i+j];
       end
       last_t = (i == (len -1));
-      WTransfer(0, data_t, strb_t, last_t);
+//      WTransfer(0, data_t, strb_t, last_t);
     end
   endtask
   

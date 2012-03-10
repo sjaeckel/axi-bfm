@@ -39,10 +39,10 @@ module Axi4StreamMaster #(
     input bit [U-1:0] user,
     input integer length
   );
-    reg [N-1:0][7:0] data_t;
-    reg [N-1:0] strb_t;
-    reg [N-1:0] keep_t;
-    reg last_t;
+    bit [N-1:0][7:0] data_t;
+    bit [N-1:0] strb_t;
+    bit [N-1:0] keep_t;
+    bit last_t;
     for (int i=0; i<length/N; i++)
     begin
       for (int j=0; j<N; j++)

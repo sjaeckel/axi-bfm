@@ -22,6 +22,12 @@ module tb;
     Rst = 1'b1; 
     #(2500)
     Rst = 1'b0;
+  end
+  
+  initial
+  begin
+    // Wait for end of reset
+    @(negedge Rst);
     @(posedge Clk);
     Axi4Lite_M.WriteTransaction(32'h100, 3'b0, 32'h12345678, 4'b1011, resp);
     Axi4Lite_M.WriteTransaction(32'h12345678, 3'b0, 32'habcd, 4'b1111, resp);
@@ -31,7 +37,7 @@ module tb;
     Axi4Stream_M.SendRandomPacket(100);
   end
 
-  AXI4 #(.N(8)) axi4(.ACLK(Clk), .ARESETn(!Rst));
+  AXI4 #(.N(8), .I(1)) axi4(.ACLK(Clk), .ARESETn(!Rst));
   AXI4Lite #(.N(4), .I(1)) axi4lite(.ACLK(Clk), .ARESETn(!Rst));
   AXI4Stream #(.N(4)) axi4stream(.ACLK(Clk), .ARESETn(!Rst));
   
@@ -39,7 +45,7 @@ module tb;
   Axi4LiteSlave #(.N(4), .I(1)) Axi4Lite_S(.intf(axi4lite));
   Axi4StreamMaster #(.N(4), .I(1), .D(1), .U(1)) Axi4Stream_M(.intf(axi4stream));
   Axi4StreamSlave #(.N(4), .I(1), .D(1), .U(1)) Axi4Stream_S(.intf(axi4stream));
-  Axi4Master #(.N(8), .I(1)) Axi4_M(.intf(axi4));
-  Axi4Slave #(.N(8), .I(1)) Axi4_S(.intf(axi4));
+  Axi4MasterBFM #(.N(8), .I(1)) Axi4_M(.intf(axi4));
+  Axi4SlaveBFM #(.N(8), .I(1)) Axi4_S(.intf(axi4));
 
 endmodule : tb
