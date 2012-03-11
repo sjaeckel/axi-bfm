@@ -21,6 +21,7 @@ module tb;
   begin 
     Rst = 1'b1; 
     #(2500)
+    @(posedge Clk);
     Rst = 1'b0;
   end
   
