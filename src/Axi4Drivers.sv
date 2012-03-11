@@ -12,12 +12,7 @@ class Axi4MasterDriver #(
   mailbox #(.T(ABeat #(.N(N), .I(I)))) AWmbx;
   mailbox #(.T(WBeat #(.N(N)))) Wmbx;
   mailbox #(.T(BBeat #(.I(I)))) Bmbx;
-  int ARDelay;
-  int RDelay;
-  int AWDelay;
-  int WDelay;
-  int BDelay;
-  
+
   function new(
     virtual AXI4 #(.N(N), .I(I)) intf, 
     mailbox #(.T(ABeat #(.N(N), .I(I)))) ARmbx,
@@ -32,18 +27,11 @@ class Axi4MasterDriver #(
     this.AWmbx = AWmbx;
     this.Wmbx = Wmbx;
     this.Bmbx = Bmbx;
-    ARDelay = 1;
-    RDelay = 1;
-    AWDelay = 1;
-    WDelay = 1;
-    BDelay = 1;
   endfunction
 
   task ARTransfer(
-    input int     delay,
     ref ABeat #(.N(N), .I(I))  ab
   );
-    for(int i=0; i<delay; i++) @(posedge intf.ACLK);
     intf.ARVALID <= 1'b1;
     intf.ARID <= ab.id;
     intf.ARADDR <= ab.addr;
@@ -61,10 +49,8 @@ class Axi4MasterDriver #(
   endtask
   
   task RTransfer(
-    input int     delay,
     ref RBeat #(.N(N), .I(I))  rb
   );
-    for(int i=0; i<delay; i++) @(posedge intf.ACLK);
     intf.RREADY <= 1'b1;
     while(!intf.RVALID) @(posedge intf.ACLK);
     rb.id = intf.RID;
@@ -75,10 +61,8 @@ class Axi4MasterDriver #(
   endtask
 
   task AWTransfer(
-    input int   delay,
     ref ABeat #(.N(N), .I(I)) ab
   );
-    for(int i=0; i<delay; i++) @(posedge intf.ACLK);
     intf.AWVALID <= 1'b1;
     intf.AWID <= ab.id;
     intf.AWADDR <= ab.addr;
@@ -96,10 +80,8 @@ class Axi4MasterDriver #(
   endtask
   
   task WTransfer(
-    input int   delay,
     ref WBeat #(.N(N)) wb
   );
-    for(int i=0; i<delay; i++) @(posedge intf.ACLK);
     intf.WVALID <= 1'b1;
     intf.WDATA <= wb.data;
     intf.WSTRB <= wb.strb;
@@ -110,10 +92,8 @@ class Axi4MasterDriver #(
   endtask
   
   task BTransfer(
-    input int    delay,
     ref BBeat #(.I(I)) bb
   );
-    for(int i=0; i<delay; i++) @(posedge intf.ACLK);
     intf.BREADY <= 1'b1;
     while(!intf.BVALID) @(posedge intf.ACLK);
     bb.id = intf.BID;
@@ -124,48 +104,63 @@ class Axi4MasterDriver #(
   task ARLoop;
     ABeat #(.N(N), .I(I)) b;
     forever
-    begin
-      ARmbx.get(b);
-      ARTransfer(ARDelay, b);
-    end
+      if (intf.ARESETn)
+      begin
+        ARmbx.get(b);
+        ARTransfer(b);
+      end
+      else 
+        @(posedge intf.ARESETn);
   endtask
   
   task RLoop;
     RBeat #(.N(N), .I(I)) b;
-    b = new();
     forever
-    begin
-      RTransfer(RDelay, b);
-      Rmbx.put(b);
-    end
+      if (intf.ARESETn)
+      begin
+        b = new();
+        RTransfer(b);
+        Rmbx.put(b);
+      end
+      else
+        @(posedge intf.ARESETn);
   endtask
   
   task AWLoop;
     ABeat #(.N(N), .I(I)) b;
     forever
-    begin
-      AWmbx.get(b);
-      AWTransfer(AWDelay, b);
-    end
+      if (intf.ARESETn)
+      begin
+        AWmbx.get(b);
+        AWTransfer(b);
+      end
+      else
+        @(posedge intf.ARESETn);
   endtask
   
   task WLoop;
     WBeat #(.N(N)) b;
     forever
-    begin
-      Wmbx.get(b);
-      WTransfer(WDelay, b);
-    end
+      if (intf.ARESETn)
+      begin
+        Wmbx.get(b);
+        WTransfer(b);
+      end
+      else
+        @(posedge intf.ARESETn);
   endtask
   
   task BLoop;
     BBeat #(.I(I)) b;
-    b = new();
     forever
-    begin
-      BTransfer(BDelay, b);
-      Bmbx.put(b);
-    end
+      if (intf.ARESETn)
+      begin
+        b = new();
+        BTransfer(b);
+        Bmbx.put(b);
+      end
+      else
+        @(posedge intf.ARESETn);
   endtask
   
   task ResetLoop;
@@ -229,11 +224,6 @@ class Axi4SlaveDriver #(
   mailbox #(.T(ABeat #(.N(N), .I(I)))) AWmbx;
   mailbox #(.T(WBeat #(.N(N)))) Wmbx;
   mailbox #(.T(BBeat #(.I(I)))) Bmbx;
-  int ARDelay;
-  int RDelay;
-  int AWDelay;
-  int WDelay;
-  int BDelay;
   
   function new(
     virtual AXI4 #(.N(N), .I(I)) intf, 
@@ -249,18 +239,11 @@ class Axi4SlaveDriver #(
     this.AWmbx = AWmbx;
     this.Wmbx = Wmbx;
     this.Bmbx = Bmbx;
-    ARDelay = 0;
-    RDelay = 0;
-    AWDelay = 0;
-    WDelay = 0;
-    BDelay = 0;
   endfunction
   
   task ARTransfer(
-    input int delay,
     ref ABeat #(.N(N), .I(I)) ab
   );
-    for(int i=0; i<delay; i++) @(posedge intf.ACLK);
     intf.ARREADY <= 1'b1;
     while (!intf.ARVALID) @(posedge intf.ACLK);
     ab.id = intf.ARID;
@@ -277,10 +260,8 @@ class Axi4SlaveDriver #(
   endtask
   
   task RTransfer(
-    input int       delay,
     ref RBeat #(.N(N), .I(I))  rb
   );
-    for(int i=0; i<delay; i++) @(posedge intf.ACLK);
     intf.RVALID <= 1'b1;
     intf.RID <= rb.id;
     intf.RDATA <= rb.data;
@@ -292,10 +273,8 @@ class Axi4SlaveDriver #(
   endtask
 
   task AWTransfer(
-    input int       delay,
     ref ABeat #(.N(N), .I(I)) ab
   );
-    for(int i=0; i<delay; i++) @(posedge intf.ACLK);
     intf.AWREADY <= 1'b1;
     while (!intf.AWVALID) @(posedge intf.ACLK);
     ab.id = intf.AWID;
@@ -312,10 +291,8 @@ class Axi4SlaveDriver #(
   endtask
   
   task WTransfer(
-    input int         delay,
     ref WBeat #(.N(N)) wb
   );
-    for(int i=0; i<delay; i++) @(posedge intf.ACLK);
     intf.WREADY <= 1'b1;
     while (!intf.WVALID) @(posedge intf.ACLK);
     wb.data = intf.WDATA;
@@ -325,10 +302,8 @@ class Axi4SlaveDriver #(
   endtask
   
   task BTransfer(
-    input int     delay,
     ref BBeat #(.I(I)) bb
   );
-    for(int i=0; i<delay; i++) @(posedge intf.ACLK);
     intf.BVALID <= 1'b1;
     intf.BID <= bb.id;
     intf.BRESP <= bb.resp;
@@ -339,52 +314,65 @@ class Axi4SlaveDriver #(
 
   task ARLoop;
     ABeat #(.N(N), .I(I)) b;
-    b = new();
     forever
-    begin
-      ARTransfer(ARDelay, b);
-      ARmbx.get(b);
-    end
+      if (intf.ARESETn)
+      begin
+        b = new();
+        ARTransfer(b);
+        ARmbx.put(b);
+      end
+      else
+        @(posedge intf.ARESETn);
   endtask
   
   task RLoop;
     RBeat #(.N(N), .I(I)) b;
-    b = new();
     forever
-    begin
-      Rmbx.put(b);
-      RTransfer(RDelay, b);
-    end
+      if (intf.ARESETn)
+      begin
+        Rmbx.get(b);
+        RTransfer(b);
+      end
+      else
+        @(posedge intf.ARESETn);
   endtask
   
   task AWLoop;
     ABeat #(.N(N), .I(I)) b;
-    b = new();
     forever
-    begin
-      AWTransfer(AWDelay, b);
-      AWmbx.get(b);
-    end
+      if (intf.ARESETn)
+      begin
+        b = new();
+        AWTransfer(b);
+        AWmbx.put(b);
+      end
+      else
+        @(posedge intf.ARESETn);
   endtask
   
   task WLoop;
     WBeat #(.N(N)) b;
-    b = new();
     forever
-    begin
-      WTransfer(WDelay, b);
-      Wmbx.get(b);
-    end
+      if (intf.ARESETn)
+      begin
+        b = new();
+        WTransfer(b);
+        Wmbx.put(b);
+      end
+      else 
+        @(posedge intf.ARESETn);
   endtask
   
   task BLoop;
     BBeat #(.I(I)) b;
-    b = new();
     forever
-    begin
-      Bmbx.put(b);
-      BTransfer(BDelay, b);
-    end
+      if (intf.ARESETn)
+      begin
+        Bmbx.get(b);
+        BTransfer(b);
+      end
+      else
+        @(posedge intf.ARESETn);
   endtask
 
   task ResetLoop;
