@@ -20,7 +20,7 @@ typedef struct packed
 typedef struct packed
 {
   bit [I-1:0]  id;
-  bit [1:0]    resp;  
+  bit [1:0]    resp;
 } BBeat;
 typedef struct packed
 {
@@ -41,13 +41,13 @@ typedef struct packed
   int BDelay;
   int ARDelay;
   int RDelay;
-  
+
   ABeat AR_Q[$];
   RBeat R_Q[$];
   ABeat AW_Q[$];
   WBeat W_Q[$];
   BBeat B_Q[$];
-  
+
   task ARTransfer(
     input int     delay,
     input ABeat   ab
@@ -68,7 +68,7 @@ typedef struct packed
     while (!intf.ARREADY) @(posedge intf.ACLK);
     intf.ARVALID <= 1'b0;
   endtask
-  
+
   task RTransfer(
     input int     delay,
     output RBeat  rb
@@ -103,7 +103,7 @@ typedef struct packed
     while (!intf.AWREADY) @(posedge intf.ACLK);
     intf.AWVALID <= 1'b0;
   endtask
-  
+
   task WTransfer(
     input int   delay,
     input WBeat wb
@@ -117,7 +117,7 @@ typedef struct packed
     while (!intf.WREADY) @(posedge intf.ACLK);
     intf.WVALID <= 1'b0;
   endtask
-  
+
   task BTransfer(
     input int    delay,
     output BBeat bb
@@ -129,7 +129,7 @@ typedef struct packed
     bb.resp = intf.BRESP;
     intf.BREADY <= 1'b0;
   endtask
-  
+
   task ARLoop;
     ABeat b;
     forever
@@ -138,7 +138,7 @@ typedef struct packed
       ARTransfer(ARDelay, b);
     end
   endtask
-  
+
   task RLoop;
     RBeat b;
     forever
@@ -156,7 +156,7 @@ typedef struct packed
       AWTransfer(AWDelay, b);
     end
   endtask
-  
+
   task WLoop;
     WBeat b;
     forever
@@ -165,7 +165,7 @@ typedef struct packed
       WTransfer(WDelay, b);
     end
   endtask
-  
+
   task BLoop;
     BBeat b;
     forever
@@ -174,7 +174,7 @@ typedef struct packed
       B_Q.push_back(b);
     end
   endtask
-  
+
   task Run;
     fork
       ARLoop;
@@ -184,7 +184,7 @@ typedef struct packed
       BLoop;
     join
   endtask
-  
+
   task RBurst(
     input [I-1:0] id,
     input         len,
@@ -203,7 +203,7 @@ typedef struct packed
       begin
         j++;
         if (last_t)
-        
+
         break;
       end
     end
@@ -227,8 +227,8 @@ typedef struct packed
 //      WTransfer(0, data_t, strb_t, last_t);
     end
   endtask
-  
-/*  
+
+/*
   task ReadTransaction (
     input [31:0] addr,
     input [2:0] prot,
@@ -237,7 +237,7 @@ typedef struct packed
     ARTransaction(ARDelay, addr, prot);
     RTransaction(RDelay, data, resp);
   endtask
-  
+
   task WriteTransaction (
     input [31:0] addr,
     input [2:0] prot,
@@ -250,7 +250,7 @@ typedef struct packed
     join
     BTransaction(BDelay, resp);
   endtask
-*/  
+*/
   always @(negedge intf.ARESETn or posedge intf.ACLK)
   begin
     if (!intf.ARESETn)
@@ -298,7 +298,7 @@ module Axi4Slave#(
   int BDelay;
   int ARDelay;
   int RDelay;
-  
+
   task ARTransfer(
     input int       delay,
     output [I-1:0]  id,
@@ -327,7 +327,7 @@ module Axi4Slave#(
     qos = intf.ARQOS;
     intf.ARREADY <= 1'b0;
   endtask
-  
+
   task RTransfer(
     input int       delay,
     input [I-1:0]   id,
@@ -374,7 +374,7 @@ module Axi4Slave#(
     qos = intf.AWQOS;
     intf.AWREADY <= 1'b0;
   endtask
-  
+
   task WTransaer(
     input int         delay,
     output [8*N-1:0]  data,
@@ -389,7 +389,7 @@ module Axi4Slave#(
     last = intf.WLAST;
     intf.WREADY <= 1'b0;
   endtask
-  
+
   task BTransfer(
     input int     delay,
     input [I-1:0] id,
@@ -403,21 +403,21 @@ module Axi4Slave#(
     while(!intf.BREADY) @(posedge intf.ACLK);
     intf.BVALID <= 1'b0;
   endtask
-/*  
+/*
   task ReadRequest(
     output [31:0] addr,
     output [2:0] prot
   );
     ARTransaction(ARDelay, addr, prot);
   endtask
-  
+
   task ReadResponse(
     input [31:0] data,
     input [1:0] resp
   );
     RTransaction(RDelay, data, resp);
   endtask
-  
+
   task WriteRequest(
     output [31:0] addr,
     output [2:0] prot,
@@ -429,16 +429,16 @@ module Axi4Slave#(
       WTransaction(WDelay, data, strb);
     join
   endtask
-  
+
   task WriteResponse(
     input [1:0] resp
   );
     BTransaction(BDelay, resp);
   endtask
-  
+
   task run;
   endtask
-*/  
+*/
   always @(negedge intf.ARESETn or posedge intf.ACLK)
   begin
     if (!intf.ARESETn)
@@ -466,5 +466,5 @@ module Axi4LiteMonitor#(
   );
   task run;
   endtask
-  
+
 endmodule: Axi4LiteMonitor

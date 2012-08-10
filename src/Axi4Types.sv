@@ -15,7 +15,7 @@ endclass: ABeat
 
 class BBeat #(int I=1);
   bit [I-1:0]  id;
-  bit [1:0]    resp;  
+  bit [1:0]    resp;
 endclass: BBeat
 
 class RBeat #(int N=1, int I=1);

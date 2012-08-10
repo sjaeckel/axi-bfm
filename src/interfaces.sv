@@ -41,7 +41,7 @@ interface AXI4 #(
   logic [1:0]     BRESP;
   logic           BVALID;
   logic           BREADY;
-  
+
   clocking cbMON @(posedge ACLK);
     input   ARID;
     input   ARADDR;
@@ -258,7 +258,7 @@ interface AXI4Lite #(
     output  BRESP
   );
   modport Monitor (clocking cbMON);
-  
+
 endinterface
 
 interface AXI4Stream #(
@@ -276,7 +276,7 @@ interface AXI4Stream #(
   logic [I-1:0]     TID;
   logic [D-1:0]     TDEST;
   logic [U-1:0]     TUSER;
-  
+
   clocking cbMON @(posedge ACLK);
     input TVALID;
     input TREADY;
@@ -288,7 +288,7 @@ interface AXI4Stream #(
     input TDEST;
     input TUSER;
   endclocking
-  
+
   modport M(
     output  TVALID,
     input   TREADY,

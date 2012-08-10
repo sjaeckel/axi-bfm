@@ -29,7 +29,7 @@ module Axi4StreamMaster #(
     while (!intf.TREADY) @(posedge intf.ACLK);
     intf.TVALID <= 1'b0;
   endtask
-  
+
   task SendPacket(
     input byte data[],
     input bit strb[],
@@ -55,7 +55,7 @@ module Axi4StreamMaster #(
       SendTransfer(data_t, strb_t, keep_t, id, dest, user, last_t);
     end
   endtask
-  
+
   task SendRandomPacket(
     input int length
   );
@@ -108,7 +108,7 @@ module Axi4StreamSlave#(
   AXI4Stream intf
 );
 
-  task ReceiveTransfer(  
+  task ReceiveTransfer(
     output [8*N-1:0] data,
     output [N-1:0] strb,
     output [N-1:0] keep,
@@ -128,7 +128,7 @@ module Axi4StreamSlave#(
     last = intf.TLAST;
     intf.TREADY <= 1'b0;
   endtask
-  
+
   task ReceivePacket(
     output byte data[],
     output bit strb[],
@@ -139,11 +139,11 @@ module Axi4StreamSlave#(
     output integer length
   );
   endtask
-  
+
   task Receive;
     intf.TREADY <= 1'b1;
   endtask
- 
+
   always @(negedge intf.ARESETn or posedge intf.ACLK)
   begin
     if (!intf.ARESETn)
@@ -152,7 +152,7 @@ module Axi4StreamSlave#(
 
 endmodule: Axi4StreamSlave
 
-  
+
 module Axi4StreamMonitor#(
   parameter N = 1,
   parameter I = 1,

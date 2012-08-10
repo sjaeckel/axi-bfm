@@ -14,7 +14,7 @@ class Axi4MasterDriver #(
   mailbox #(.T(BBeat #(.I(I)))) Bmbx;
 
   function new(
-    virtual AXI4 #(.N(N), .I(I)) intf, 
+    virtual AXI4 #(.N(N), .I(I)) intf,
     mailbox #(.T(ABeat #(.N(N), .I(I)))) ARmbx,
     mailbox #(.T(RBeat #(.N(N), .I(I)))) Rmbx,
     mailbox #(.T(ABeat #(.N(N), .I(I)))) AWmbx,
@@ -47,7 +47,7 @@ class Axi4MasterDriver #(
     while (!intf.ARREADY) @(posedge intf.ACLK);
     intf.ARVALID <= 1'b0;
   endtask
-  
+
   task RTransfer(
     ref RBeat #(.N(N), .I(I))  rb
   );
@@ -78,7 +78,7 @@ class Axi4MasterDriver #(
     while (!intf.AWREADY) @(posedge intf.ACLK);
     intf.AWVALID <= 1'b0;
   endtask
-  
+
   task WTransfer(
     ref WBeat #(.N(N)) wb
   );
@@ -90,7 +90,7 @@ class Axi4MasterDriver #(
     while (!intf.WREADY) @(posedge intf.ACLK);
     intf.WVALID <= 1'b0;
   endtask
-  
+
   task BTransfer(
     ref BBeat #(.I(I)) bb
   );
@@ -100,7 +100,7 @@ class Axi4MasterDriver #(
     bb.resp = intf.BRESP;
     intf.BREADY <= 1'b0;
   endtask
-  
+
   task ARLoop;
     ABeat #(.N(N), .I(I)) b;
     forever
@@ -109,10 +109,10 @@ class Axi4MasterDriver #(
         ARmbx.get(b);
         ARTransfer(b);
       end
-      else 
+      else
         @(posedge intf.ARESETn);
   endtask
-  
+
   task RLoop;
     RBeat #(.N(N), .I(I)) b;
     forever
@@ -125,7 +125,7 @@ class Axi4MasterDriver #(
       else
         @(posedge intf.ARESETn);
   endtask
-  
+
   task AWLoop;
     ABeat #(.N(N), .I(I)) b;
     forever
@@ -137,7 +137,7 @@ class Axi4MasterDriver #(
       else
         @(posedge intf.ARESETn);
   endtask
-  
+
   task WLoop;
     WBeat #(.N(N)) b;
     forever
@@ -149,7 +149,7 @@ class Axi4MasterDriver #(
       else
         @(posedge intf.ARESETn);
   endtask
-  
+
   task BLoop;
     BBeat #(.I(I)) b;
     forever
@@ -162,7 +162,7 @@ class Axi4MasterDriver #(
       else
         @(posedge intf.ARESETn);
   endtask
-  
+
   task ResetLoop;
     forever
     begin
@@ -224,9 +224,9 @@ class Axi4SlaveDriver #(
   mailbox #(.T(ABeat #(.N(N), .I(I)))) AWmbx;
   mailbox #(.T(WBeat #(.N(N)))) Wmbx;
   mailbox #(.T(BBeat #(.I(I)))) Bmbx;
-  
+
   function new(
-    virtual AXI4 #(.N(N), .I(I)) intf, 
+    virtual AXI4 #(.N(N), .I(I)) intf,
     mailbox #(.T(ABeat #(.N(N), .I(I)))) ARmbx,
     mailbox #(.T(RBeat #(.N(N), .I(I)))) Rmbx,
     mailbox #(.T(ABeat #(.N(N), .I(I)))) AWmbx,
@@ -240,7 +240,7 @@ class Axi4SlaveDriver #(
     this.Wmbx = Wmbx;
     this.Bmbx = Bmbx;
   endfunction
-  
+
   task ARTransfer(
     ref ABeat #(.N(N), .I(I)) ab
   );
@@ -258,7 +258,7 @@ class Axi4SlaveDriver #(
     ab.qos = intf.ARQOS;
     intf.ARREADY <= 1'b0;
   endtask
-  
+
   task RTransfer(
     ref RBeat #(.N(N), .I(I))  rb
   );
@@ -289,7 +289,7 @@ class Axi4SlaveDriver #(
     ab.qos = intf.AWQOS;
     intf.AWREADY <= 1'b0;
   endtask
-  
+
   task WTransfer(
     ref WBeat #(.N(N)) wb
   );
@@ -300,7 +300,7 @@ class Axi4SlaveDriver #(
     wb.last = intf.WLAST;
     intf.WREADY <= 1'b0;
   endtask
-  
+
   task BTransfer(
     ref BBeat #(.I(I)) bb
   );
@@ -324,7 +324,7 @@ class Axi4SlaveDriver #(
       else
         @(posedge intf.ARESETn);
   endtask
-  
+
   task RLoop;
     RBeat #(.N(N), .I(I)) b;
     forever
@@ -336,7 +336,7 @@ class Axi4SlaveDriver #(
       else
         @(posedge intf.ARESETn);
   endtask
-  
+
   task AWLoop;
     ABeat #(.N(N), .I(I)) b;
     forever
@@ -349,7 +349,7 @@ class Axi4SlaveDriver #(
       else
         @(posedge intf.ARESETn);
   endtask
-  
+
   task WLoop;
     WBeat #(.N(N)) b;
     forever
@@ -359,10 +359,10 @@ class Axi4SlaveDriver #(
         WTransfer(b);
         Wmbx.put(b);
       end
-      else 
+      else
         @(posedge intf.ARESETn);
   endtask
-  
+
   task BLoop;
     BBeat #(.I(I)) b;
     forever
@@ -406,7 +406,7 @@ class Axi4SlaveDriver #(
       ResetLoop;
     join
   endtask
-  
+
 endclass
 
 endpackage : pkg_Axi4Driver

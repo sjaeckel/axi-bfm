@@ -28,7 +28,7 @@ module Axi4LiteMaster#(
     while (!intf.ARREADY) @(posedge intf.ACLK);
     intf.ARVALID <= 1'b0;
   endtask
-  
+
   task RTransaction(
     input int delay,
     output [63:0] data,
@@ -55,7 +55,7 @@ module Axi4LiteMaster#(
     while (!intf.AWREADY) @(posedge intf.ACLK);
     intf.AWVALID <= 1'b0;
   endtask
-  
+
   task WTransaction(
     input int delay,
     input [63:0] data,
@@ -69,7 +69,7 @@ module Axi4LiteMaster#(
     while (!intf.WREADY) @(posedge intf.ACLK);
     intf.WVALID <= 1'b0;
   endtask
-  
+
   task BTransaction(
     input int delay,
     output [1:0] resp
@@ -80,7 +80,7 @@ module Axi4LiteMaster#(
     resp = intf.BRESP;
     intf.BREADY <= 1'b0;
   endtask
-  
+
   task ReadTransaction (
     input [31:0] addr,
     input [2:0] prot,
@@ -89,7 +89,7 @@ module Axi4LiteMaster#(
     ARTransaction(ARDelay, addr, prot);
     RTransaction(RDelay, data, resp);
   endtask
-  
+
   task WriteTransaction (
     input [31:0] addr,
     input [2:0] prot,
@@ -102,7 +102,7 @@ module Axi4LiteMaster#(
     join
     BTransaction(BDelay, resp);
   endtask
-  
+
   always @(negedge intf.ARESETn or posedge intf.ACLK)
   begin
     if (!intf.ARESETn)
@@ -150,7 +150,7 @@ module Axi4LiteSlave #(
     prot = intf.ARPROT;
     intf.ARREADY <= 1'b0;
   endtask
-  
+
   task RTransaction(
     input int delay,
     input [63:0] data,
@@ -177,7 +177,7 @@ module Axi4LiteSlave #(
     prot = intf.AWPROT;
     intf.AWREADY <= 1'b0;
   endtask
-  
+
   task WTransaction(
     input int delay,
     output [63:0] data,
@@ -190,7 +190,7 @@ module Axi4LiteSlave #(
     strb = intf.WSTRB;
     intf.WREADY <= 1'b0;
   endtask
-  
+
   task BTransaction(
     input int delay,
     input [1:0] resp
@@ -202,21 +202,21 @@ module Axi4LiteSlave #(
     while(!intf.BREADY) @(posedge intf.ACLK);
     intf.BVALID <= 1'b0;
   endtask
-  
+
   task ReadRequest(
     output [31:0] addr,
     output [2:0] prot
   );
     ARTransaction(ARDelay, addr, prot);
   endtask
-  
+
   task ReadResponse(
     input [31:0] data,
     input [1:0] resp
   );
     RTransaction(RDelay, data, resp);
   endtask
-  
+
   task WriteRequest(
     output [31:0] addr,
     output [2:0] prot,
@@ -228,13 +228,13 @@ module Axi4LiteSlave #(
       WTransaction(WDelay, data, strb);
     join
   endtask
-  
+
   task WriteResponse(
     input [1:0] resp
   );
     BTransaction(BDelay, resp);
   endtask
-  
+
   task RunReadLoop;
     reg [63:0] data;
     reg [31:0] addr;
@@ -252,18 +252,18 @@ module Axi4LiteSlave #(
       if (offset < SLAVE_MEM_SIZE)
       begin
         if (N==4)
-          data = {32'b0, 
+          data = {32'b0,
                   Mem[offset+3], Mem[offset+2], Mem[offset+1], Mem[offset]};
         else
           data = {Mem[offset+7], Mem[offset+6], Mem[offset+5], Mem[offset+4],
                   Mem[offset+3], Mem[offset+2], Mem[offset+1], Mem[offset]};
-        RTransaction(RDelay, data, `OKAY); 
+        RTransaction(RDelay, data, `OKAY);
       end
       else
         RTransaction(RDelay, 64'b0, `DECERR);
     end
   endtask
-  
+
   task RunWriteLoop;
     reg [31:0] addr;
     reg [1:0] prot;
@@ -295,13 +295,13 @@ module Axi4LiteSlave #(
           if (strb[6]) Mem[offset+6] = data[55:48];
           if (strb[7]) Mem[offset+7] = data[63:56];
         end
-        BTransaction(BDelay, `OKAY); 
+        BTransaction(BDelay, `OKAY);
       end
       else
         BTransaction(BDelay, `DECERR);
     end
   endtask
-  
+
   initial
   begin
     if (MEMORY_MODEL_MODE == 1)
@@ -315,8 +315,8 @@ module Axi4LiteSlave #(
       join_none
     end
   end
-  
-  
+
+
   always @(negedge intf.ARESETn or posedge intf.ACLK)
   begin
     if (!intf.ARESETn)
@@ -343,5 +343,5 @@ module Axi4LiteMonitor #(
 
   task run;
   endtask
-  
+
 endmodule: Axi4LiteMonitor

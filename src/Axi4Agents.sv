@@ -16,7 +16,7 @@ class Axi4MasterAgent #(
   ABeat #(N, I) AW_Q[$];
   WBeat #(N) W_Q[$];
   BBeat #(I) B_Q[$];
-  
+
   function new(
     mailbox #(.T(ABeat #(.N(N), .I(I)))) ARmbx,
     mailbox #(.T(RBeat #(.N(N), .I(I)))) Rmbx,
@@ -49,7 +49,7 @@ class Axi4MasterAgent #(
       begin
         j++;
         if (last_t)
-        
+
         break;
       end
     end
@@ -73,7 +73,7 @@ class Axi4MasterAgent #(
 //      WTransfer(0, data_t, strb_t, last_t);
     end
   endtask
-  
+
 endclass: Axi4MasterAgent
 
 class Axi4SlaveAgent #(

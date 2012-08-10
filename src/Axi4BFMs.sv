@@ -28,7 +28,7 @@ module Axi4MasterBFM #(
     Driver = new(intf, ARmbx, Rmbx, AWmbx, Wmbx, Bmbx);
     Driver.Run;
   end
-  
+
 endmodule: Axi4MasterBFM
 
 module Axi4SlaveBFM #(
@@ -37,7 +37,7 @@ module Axi4SlaveBFM #(
 )(
   AXI4 intf
   );
-  
+
   Axi4SlaveAgent #(.N(N), .I(I)) Agent;
   Axi4SlaveDriver #(.N(N), .I(I)) Driver;
   mailbox #(.T(ABeat #(.N(N), .I(I)))) ARmbx;
@@ -45,7 +45,7 @@ module Axi4SlaveBFM #(
   mailbox #(.T(ABeat #(.N(N), .I(I)))) AWmbx;
   mailbox #(.T(WBeat #(.N(N)))) Wmbx;
   mailbox #(.T(BBeat #(.I(I)))) Bmbx;
-  
+
   initial
   begin
     ARmbx = new();
@@ -57,6 +57,6 @@ module Axi4SlaveBFM #(
     Driver = new(intf, ARmbx, Rmbx, AWmbx, Wmbx, Bmbx);
     Driver.Run;
   end
-  
+
 endmodule: Axi4SlaveBFM
 
