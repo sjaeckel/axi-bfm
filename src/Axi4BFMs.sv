@@ -58,5 +58,35 @@ module Axi4SlaveBFM #(
     Driver.Run;
   end
 
+  task GetReadTransaction (
+    output ABeat #(.N(N), .I(I)) ARbeat
+    );
+    ARmbx.get(ARbeat);
+  endtask
+
+  task PutReadData (
+    input RBeat #(.N(N), .I(I)) rb
+  );
+    Rmbx.put(rb);
+  endtask
+
+  task GetWriteTransaction (
+    output ABeat #(.N(N), .I(I)) AWbeat
+    );
+    AWmbx.get(AWbeat);
+  endtask
+
+  task GetWriteData (
+    output WBeat #(.N(N)) wb
+  );
+    Wmbx.get(wb);
+  endtask
+
+  task PutWriteResponse (
+    input BBeat #(.I(I)) bb
+  );
+    Bmbx.put(bb);
+  endtask
+
 endmodule: Axi4SlaveBFM
 
