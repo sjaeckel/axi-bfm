@@ -270,6 +270,7 @@ class Axi4SlaveDriver #(
     @(posedge intf.ACLK);
     while(!intf.RREADY) @(posedge intf.ACLK);
     intf.RVALID <= 1'b0;
+    intf.RLAST <= 1'b0;
   endtask
 
   task AWTransfer(
