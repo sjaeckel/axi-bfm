@@ -321,6 +321,7 @@ class Axi4SlaveDriver #(
         b = new();
         ARTransfer(b);
         ARmbx.put(b);
+        @(posedge intf.ACLK);
       end
       else
         @(posedge intf.ARESETn);
@@ -346,6 +347,7 @@ class Axi4SlaveDriver #(
         b = new();
         AWTransfer(b);
         AWmbx.put(b);
+        @(posedge intf.ACLK);
       end
       else
         @(posedge intf.ARESETn);
