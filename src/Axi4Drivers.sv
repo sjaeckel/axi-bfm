@@ -227,11 +227,11 @@ class Axi4SlaveDriver #(
 
   function new(
     virtual AXI4 #(.N(N), .I(I)) intf,
-    mailbox #(.T(ABeat #(.N(N), .I(I)))) ARmbx,
-    mailbox #(.T(RBeat #(.N(N), .I(I)))) Rmbx,
-    mailbox #(.T(ABeat #(.N(N), .I(I)))) AWmbx,
-    mailbox #(.T(WBeat #(.N(N)))) Wmbx,
-    mailbox #(.T(BBeat #(.I(I)))) Bmbx
+    ref mailbox #(.T(ABeat #(.N(N), .I(I)))) ARmbx,
+    ref mailbox #(.T(RBeat #(.N(N), .I(I)))) Rmbx,
+    ref mailbox #(.T(ABeat #(.N(N), .I(I)))) AWmbx,
+    ref mailbox #(.T(WBeat #(.N(N)))) Wmbx,
+    ref mailbox #(.T(BBeat #(.I(I)))) Bmbx
   );
     this.intf = intf;
     this.ARmbx = ARmbx;
