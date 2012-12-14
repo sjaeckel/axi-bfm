@@ -295,6 +295,7 @@ class Axi4SlaveDriver #(
     ref WBeat #(.N(N)) wb
   );
     intf.WREADY <= 1'b1;
+    @(posedge intf.ACLK);
     while (!intf.WVALID) @(posedge intf.ACLK);
     wb.data = intf.WDATA;
     wb.strb = intf.WSTRB;
