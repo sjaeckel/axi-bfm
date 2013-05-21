@@ -14,6 +14,7 @@ module Axi4LiteMaster#(
   int BDelay;
   int ARDelay;
   int RDelay;
+  int RSTDelay;
 
   task ARTransaction(
     input int delay,
@@ -86,7 +87,7 @@ module Axi4LiteMaster#(
     input [2:0] prot,
     output [63:0] data,
     output [2:0] resp);
-    ARTransaction(ARDelay, addr, prot);
+    ARTransaction(ARDelay + RSTDelay, addr, prot);
     RTransaction(RDelay, data, resp);
   endtask
 
@@ -97,8 +98,8 @@ module Axi4LiteMaster#(
     input [7:0] strb,
     output [1:0] resp);
     fork
-      AWTransaction(AWDelay, addr, prot);
-      WTransaction(WDelay, data, strb);
+      AWTransaction(AWDelay + RSTDelay, addr, prot);
+      WTransaction(WDelay + RSTDelay, data, strb);
     join
     BTransaction(BDelay, resp);
   endtask
@@ -118,7 +119,10 @@ module Axi4LiteMaster#(
       intf.WDATA <= {N{8'b0}};
       intf.WSTRB <= {N{1'b0}};
       intf.BREADY <= 1'b0;
+      RSTDelay = 1;
     end
+    else
+      RSTDelay = 0;
   end
 endmodule: Axi4LiteMaster
 
